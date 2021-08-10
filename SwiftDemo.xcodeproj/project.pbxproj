@@ -77,6 +77,7 @@
 		A677D01526C11AA600B13BDE /* Graphics */ = {
 			isa = PBXGroup;
 			children = (
+				A677D02126C12F5D00B13BDE /* AsyncOperation.swift */,
 				A677D02526C1358300B13BDE /* NetworkImageOperation.swift */,
 				A655AC9226C2B1B60064517C /* ImageDataProvider.swift */,
 				A677D01626C11ACC00B13BDE /* TiltShiftFilter.swift */,
@@ -136,7 +137,6 @@
 				A69D4B7826BFF80F00194831 /* SubclassingOperationViewController.swift */,
 				A677D00C26C0D71300B13BDE /* TileShiftTableViewController.swift */,
 				A677D01D26C12AB100B13BDE /* TiltShiftAsynchronousOperationsViewController.swift */,
-				A677D02126C12F5D00B13BDE /* AsyncOperation.swift */,
 			);
 			path = Concurrency;
 			sourceTree = "<group>";

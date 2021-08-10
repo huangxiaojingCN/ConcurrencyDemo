@@ -15,6 +15,8 @@ final class NetworkImageOperation: AsyncOperation {
     private let url: URL
     private let completion: ImageOperationCompletion
     
+    private var task: URLSessionDataTask?
+    
     var outputImage: UIImage?
     
     init(url: URL,
@@ -34,7 +36,7 @@ final class NetworkImageOperation: AsyncOperation {
     }
     
     override func main() {
-        URLSession.shared.dataTask(with: url, completionHandler: { [weak self] data, response, error in
+        task = URLSession.shared.dataTask(with: url, completionHandler: { [weak self] data, response, error in
             
             guard let self = self else {
                 return
@@ -43,6 +45,8 @@ final class NetworkImageOperation: AsyncOperation {
             defer {
                 self.state = .finished
             }
+            
+            guard !self.isCancelled else { return }
             
             if let completion = self.completion {
                 completion(data, response, error)
@@ -55,7 +59,16 @@ final class NetworkImageOperation: AsyncOperation {
             }
             
             self.outputImage = UIImage(data: data)
-        }).resume()
+        })
+        
+        task?.resume()
+        print("网络请求: \(task!)")
+    }
+    
+    override func cancel() {
+        super.cancel()
+        print("取消网络请求: \(task!)")
+        task?.cancel()
     }
 }
 

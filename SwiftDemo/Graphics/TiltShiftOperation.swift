@@ -22,21 +22,40 @@ class TiltShiftOperation: Operation {
     }
     
     override func main() {
-        let dependencyImage = dependencies
-          .compactMap { ($0 as? ImageDataProvider)?.image }
-          .first
-
-        guard let inputImage = inputImage ?? dependencyImage else {
-          return
+        var imageToProcess: UIImage
+        
+        if let inputImage = inputImage {
+          // 1
+          imageToProcess = inputImage
+        } else {
+          // 2
+          let dependencyImage: UIImage? = dependencies
+            .compactMap { ($0 as? ImageDataProvider)?.image }
+            .first
+          
+          if let dependencyImage = dependencyImage {
+            imageToProcess = dependencyImage
+          } else {
+            // 3
+            return
+          }
         }
         
-        guard let filter = TiltShiftFilter(image: inputImage, radius: 3.0),
+        guard !isCancelled else {
+            return
+        }
+        
+        guard let filter = TiltShiftFilter(image: imageToProcess, radius: 3.0),
               let output = filter.outputImage else {
             print("Failed to generate tilt shift image")
             return
         }
         
-        let fromRect = CGRect(origin: .zero, size: inputImage.size)
+        guard !isCancelled else {
+            return
+        }
+        
+        let fromRect = CGRect(origin: .zero, size: imageToProcess.size)
         guard let cgImage = TiltShiftOperation
                 .context
                 .createCGImage(output, from: fromRect) else {

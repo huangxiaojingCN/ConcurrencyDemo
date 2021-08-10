@@ -11,6 +11,8 @@ class TiltShiftAsynchronousOperationsViewController: UIViewController {
     
     var urls: [URL] = []
     
+    var dependencies: [IndexPath: [ Operation ]] = [:]
+    
     let queue = OperationQueue()
     
     var table: UITableView = {
@@ -69,9 +71,10 @@ extension TiltShiftAsynchronousOperationsViewController: UITableViewDataSource {
         
         cell.display(image: nil)
         
-        let op = NetworkImageOperation(url: urls[indexPath.row])
+        print("cell index: \(indexPath.row), cell: \(cell.hashValue)")
+        let networkImageOp = NetworkImageOperation(url: urls[indexPath.row])
         let tiltShiftOp = TiltShiftOperation()
-        tiltShiftOp.addDependency(op)
+        tiltShiftOp.addDependency(networkImageOp)
         tiltShiftOp.onImageProcessed = { image in
             guard let cell = tableView.cellForRow(at: indexPath) as? TileShiftViewCell else {
                 return
@@ -91,8 +94,16 @@ extension TiltShiftAsynchronousOperationsViewController: UITableViewDataSource {
 //            }
 //        }
     
-        queue.addOperation(op)
+        queue.addOperation(networkImageOp)
         queue.addOperation(tiltShiftOp)
+        
+        if let dependencies = dependencies[indexPath] {
+            for dependency in dependencies {
+                dependency.cancel()
+            }
+        }
+        
+        dependencies[indexPath] = [networkImageOp, tiltShiftOp]
         
         return cell
     }
